@@ -24,6 +24,8 @@
 
 set -eo pipefail
 
+CROSS="arm-plum-linux-gnueabi"
+
 export PATH="/root/x-tools/arm-plum-linux-gnueabi/bin:${PATH}"
 export CC="${CROSS}-gcc"
 export CXX="${CROSS}-g++"
@@ -34,7 +36,7 @@ export LDD="${CROSS}-ldd"
 export ELFEDIT="${CROSS}-elfedit"
 export STRIP="${CROSS}-strip"
 
-CROSS="arm-plum-linux-gnueabi"
+
 
 SNAPPY_VSN=master
 LEVELDB_VSN=1.18
