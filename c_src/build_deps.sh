@@ -36,7 +36,7 @@ export STRIP="${CROSS}-strip"
 
 CROSS="arm-plum-linux-gnueabi"
 
-SNAPPY_VSN=1.1.2
+SNAPPY_VSN=master
 LEVELDB_VSN=1.18
 
 if [ `basename $PWD` != "c_src" ]; then
