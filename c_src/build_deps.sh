@@ -24,10 +24,20 @@
 
 set -eo pipefail
 
-SNAPPY_VSN=HEAD
-LEVELDB_VSN=HEAD
-HYPERLEVELDB_VSN=HEAD
-ROCKSDB_VSN=HEAD
+export PATH="/root/x-tools/arm-plum-linux-gnueabi/bin:${PATH}"
+export CC="${CROSS}-gcc"
+export CXX="${CROSS}-g++"
+export AR="${CROSS}-ar"
+export RANLIB="${CROSS}-ranlib"
+export LD="${CROSS}-ld"
+export LDD="${CROSS}-ldd"
+export ELFEDIT="${CROSS}-elfedit"
+export STRIP="${CROSS}-strip"
+
+CROSS="arm-plum-linux-gnueabi"
+
+SNAPPY_VSN=1.1.2
+LEVELDB_VSN=1.18
 
 if [ `basename $PWD` != "c_src" ]; then
     pushd c_src > /dev/null 2>&1
@@ -40,8 +50,6 @@ case "$1" in
         rm -f *.o ../priv/lib/*.so
         rm -rf snappy snappy-$SNAPPY_VSN
         rm -rf leveldb leveldb-$LEVELDB_VSN
-        rm -rf hyperleveldb hyperleveldb-$HYPERLEVELDB_VSN
-        rm -rf rocksdb rocksdb-$ROCKSDB_VSN
         ;;
     get_deps)
         ;;
@@ -76,6 +84,7 @@ case "$1" in
                 autoconf)
             (cd snappy-$SNAPPY_VSN && \
                 ./configure $CONFFLAGS \
+                --host="${CROSS}"
                 --enable-static \
                 --disable-shared \
                 --with-pic \
@@ -83,9 +92,12 @@ case "$1" in
                 make install)
             rm -f $BASEDIR/snappy/lib/libsnappy.la
         fi
+        
+        export TARGET_OS="OS_LINUX_ARM_CROSSCOMPILE"
+        
         # leveldb
         if [ ! -f $BASEDIR/leveldb/lib/libleveldb.a ]; then
-            (cd $REBAR_DEPS_DIR/leveldb && git archive --format=tar --prefix=leveldb-$LEVELDB_VSN/ $LEVELDB_VSN) \
+            (cd $REBAR_DEPS_DIR/leveldb && git archive --format=tar --prefix=leveldb-ARM32-$LEVELDB_VSN/ ARM32-$LEVELDB_VSN) \
                 | tar xf -
             (cd leveldb-$LEVELDB_VSN && \
                 echo "echo \"PLATFORM_CFLAGS+=-fPIC -I$BASEDIR/snappy/include\" >> build_config.mk" >> build_detect_platform &&
@@ -96,49 +108,6 @@ case "$1" in
                 install include/leveldb/*.h $BASEDIR/leveldb/include/leveldb && \
                 mkdir -p $BASEDIR/leveldb/lib && \
                 install libleveldb.a $BASEDIR/leveldb/lib)
-        fi
-        # hyperleveldb
-        if [ ! -f $BASEDIR/hyperleveldb/lib/libhyperleveldb.a ]; then
-            (cd $REBAR_DEPS_DIR/hyperleveldb && git archive --format=tar --prefix=hyperleveldb-$HYPERLEVELDB_VSN/ $HYPERLEVELDB_VSN) \
-                | tar xf -
-            (cd hyperleveldb-$HYPERLEVELDB_VSN && \
-                perl -ibak1 -pe 's/\.la/.a/g;' Makefile.am && \
-                perl -ibak2 -pe 's/_la_/_a_/g;' Makefile.am && \
-                perl -ibak3 -pe 's/lib_LTLIBRARIES/lib_LIBRARIES/g;' Makefile.am && \
-                perl -ibak4 -pe 's/libhyperleveldb_a_LIBADD/#libhyperleveldb_a_LIBADD/g;' Makefile.am && \
-                perl -ibak5 -pe 's!.*_PROGRAMS.*!#!g;' Makefile.am)
-            (cd hyperleveldb-$HYPERLEVELDB_VSN && \
-                rm -rf autom4te.cache && \
-                $LIBTOOLIZE --copy && \
-                aclocal -I m4 && \
-                autoheader && \
-                automake --add-missing --copy && \
-                autoconf)
-            (cd hyperleveldb-$HYPERLEVELDB_VSN && \
-                env CPPFLAGS="-fPIC -I$BASEDIR/snappy/include $CPPFLAGS" \
-                    CFLAGS="-fPIC -I$BASEDIR/snappy/include $CFLAGS" \
-                    CXXFLAGS="-fPIC -I$BASEDIR/snappy/include $CXXFLAGS" \
-                    LDFLAGS="-L$BASEDIR/snappy/lib -lsnappy $LDFLAGS" \
-                    ./configure --enable-static --enable-snappy && \
-                make && \
-                mkdir -p $BASEDIR/hyperleveldb/include/hyperleveldb && \
-                install include/hyperleveldb/*.h $BASEDIR/hyperleveldb/include/hyperleveldb && \
-                mkdir -p $BASEDIR/hyperleveldb/lib && \
-                install libhyperleveldb.a $BASEDIR/hyperleveldb/lib)
-        fi
-        # rocksdb
-        if [ ! -f $BASEDIR/rocksdb/lib/librocksdb.a ]; then
-            (cd $REBAR_DEPS_DIR/rocksdb && git archive --format=tar --prefix=rocksdb-$ROCKSDB_VSN/ $ROCKSDB_VSN) \
-                | tar xf -
-            (cd rocksdb-$ROCKSDB_VSN && \
-                echo "echo \"PLATFORM_CCFLAGS+=-fPIC -DSNAPPY -I$BASEDIR/snappy/include\" >> make_config.mk" >> build_tools/build_detect_platform &&
-                echo "echo \"PLATFORM_CXXFLAGS+=-fPIC -DSNAPPY -I$BASEDIR/snappy/include\" >> make_config.mk" >> build_tools/build_detect_platform &&
-                echo "echo \"PLATFORM_LDFLAGS+=-L $BASEDIR/snappy/lib -lsnappy\" >> make_config.mk" >> build_tools/build_detect_platform &&
-                make static_lib && \
-                mkdir -p $BASEDIR/rocksdb/include/rocksdb && \
-                install include/rocksdb/*.h $BASEDIR/rocksdb/include/rocksdb && \
-                mkdir -p $BASEDIR/rocksdb/lib && \
-                install librocksdb.a $BASEDIR/rocksdb/lib)
         fi
         ;;
 esac
