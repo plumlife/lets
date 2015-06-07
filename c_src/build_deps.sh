@@ -82,7 +82,7 @@ case "$1" in
                 $LIBTOOLIZE --copy && \
                 aclocal -I m4 && \
                 autoheader && \
-                automake --add-missing --copy && \
+                automake --copy && \
                 autoconf)
             (cd snappy-$SNAPPY_VSN && \
                 ./configure $CONFFLAGS \
