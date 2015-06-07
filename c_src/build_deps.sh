@@ -52,7 +52,7 @@ case "$1" in
         rm -rf leveldb leveldb-$LEVELDB_VSN
         ;;
     get_deps)
-        cd $REBAR_DEPS_DIR && git clone git://github.com/norton/snappy.git snappy -b $SNAPPY_VSN --single-branch
+        cd $REBAR_DEPS_DIR && git clone git://github.com/google/snappy.git snappy -b $SNAPPY_VSN --single-branch
         cd $REBAR_DEPS_DIR && git clone git://github.com/plumlife/leveldb.git leveldb -b ARM32-$LEVELDB_VSN --single-branch
         ;;
     update_deps)
