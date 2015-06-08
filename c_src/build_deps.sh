@@ -24,17 +24,17 @@
 
 set -eo pipefail
 
-CROSS="arm-plum-linux-gnueabi"
+# CROSS="arm-plum-linux-gnueabi"
 
-export PATH="/root/x-tools/arm-plum-linux-gnueabi/bin:${PATH}"
-export CC="${CROSS}-gcc"
-export CXX="${CROSS}-g++"
-export AR="${CROSS}-ar"
-export RANLIB="${CROSS}-ranlib"
-export LD="${CROSS}-ld"
-export LDD="${CROSS}-ldd"
-export ELFEDIT="${CROSS}-elfedit"
-export STRIP="${CROSS}-strip"
+# export PATH="/root/x-tools/arm-plum-linux-gnueabi/bin:${PATH}"
+# export CC="${CROSS}-gcc"
+# export CXX="${CROSS}-g++"
+# export AR="${CROSS}-ar"
+# export RANLIB="${CROSS}-ranlib"
+# export LD="${CROSS}-ld"
+# export LDD="${CROSS}-ldd"
+# export ELFEDIT="${CROSS}-elfedit"
+# export STRIP="${CROSS}-strip"
 
 
 
@@ -55,7 +55,8 @@ case "$1" in
         ;;
     get_deps)
         cd $REBAR_DEPS_DIR && git clone git://github.com/google/snappy.git snappy -b $SNAPPY_VSN --single-branch
-        cd $REBAR_DEPS_DIR && git clone git://github.com/plumlife/leveldb.git leveldb -b ARM32-$LEVELDB_VSN --single-branch
+        #cd $REBAR_DEPS_DIR && git clone git://github.com/plumlife/leveldb.git leveldb -b ARM32-$LEVELDB_VSN --single-branch
+        cd $REBAR_DEPS_DIR && git clone git://github.com/google/leveldb.git leveldb -b $LEVELDB_VSN --single-branch
         ;;
     update_deps)
         ;;
@@ -101,7 +102,7 @@ case "$1" in
         
         # leveldb
         if [ ! -f $BASEDIR/leveldb/lib/libleveldb.a ]; then
-            (cd $REBAR_DEPS_DIR/leveldb && git archive --format=tar --prefix=leveldb-ARM32-$LEVELDB_VSN/ ARM32-$LEVELDB_VSN) \
+            (cd $REBAR_DEPS_DIR/leveldb && git archive --format=tar --prefix=leveldb-$LEVELDB_VSN/ $LEVELDB_VSN) \
                 | tar xf -
             (cd leveldb-$LEVELDB_VSN && \
                 echo "echo \"PLATFORM_CFLAGS+=-fPIC -I$BASEDIR/snappy/include\" >> build_config.mk" >> build_detect_platform &&
