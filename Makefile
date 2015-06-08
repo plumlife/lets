@@ -12,7 +12,7 @@ rets_cxx_files := $(patsubst c_src/hets_%,c_src/rets_%,$(hets_cxx_files))
 	compile-for-eunit compile-for-eqc compile-for-proper \
 	realclean
 
-all: compile
+all: deps compile
 
 deps:
 	$(REBAR) get-deps

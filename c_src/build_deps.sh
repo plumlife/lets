@@ -36,27 +36,32 @@ set -eo pipefail
 # export ELFEDIT="${CROSS}-elfedit"
 # export STRIP="${CROSS}-strip"
 
-
-
-SNAPPY_VSN=master
+SNAPPY_VSN=1.0.4
 LEVELDB_VSN=v1.18
 
 if [ `basename $PWD` != "c_src" ]; then
     pushd c_src > /dev/null 2>&1
 fi
 
+mkdir -p $REBAR_DEPS_DIR
+
 BASEDIR="$PWD"
 
 case "$1" in
     clean)
         rm -f *.o ../priv/lib/*.so
-        rm -rf snappy snappy-$SNAPPY_VSN
+        rm -rf snappy-$SNAPPY_VSN
         rm -rf leveldb leveldb-$LEVELDB_VSN
         ;;
     get_deps)
-        cd $REBAR_DEPS_DIR && git clone git://github.com/google/snappy.git snappy -b $SNAPPY_VSN --single-branch
-        #cd $REBAR_DEPS_DIR && git clone git://github.com/plumlife/leveldb.git leveldb -b ARM32-$LEVELDB_VSN --single-branch
-        cd $REBAR_DEPS_DIR && git clone git://github.com/google/leveldb.git leveldb -b $LEVELDB_VSN --single-branch
+        echo $(pwd)
+        tar xf snappy-$SNAPPY_VSN.tar.gz
+        if [ -d "$REBAR_DEPS_DIR/leveldb" ];
+        then
+            echo "Already cloned and checked out"
+        else
+            cd $REBAR_DEPS_DIR && git clone git://github.com/google/leveldb.git leveldb -b $LEVELDB_VSN --single-branch
+        fi
         ;;
     update_deps)
         ;;
@@ -74,31 +79,15 @@ case "$1" in
 
         # snappy
         if [ ! -f $BASEDIR/snappy/lib/libsnappy.a ]; then
-            (cd $REBAR_DEPS_DIR/snappy && git archive --format=tar --prefix=snappy-$SNAPPY_VSN/ $SNAPPY_VSN) \
-                | tar xf -
-            (cd snappy-$SNAPPY_VSN && \
-                sed -ibak1 '/^AC_ARG_WITH.*$/, /^fi$/d' configure.ac && \
-                perl -ibak2 -pe 's/LT_INIT/AM_PROG_AR\nLT_INIT/' configure.ac
-            )
-            (cd snappy-$SNAPPY_VSN && \
-                rm -rf autom4te.cache && \
-                $LIBTOOLIZE --copy && \
-                aclocal -I m4 && \
-                autoheader && \
-                automake --copy && \
-                autoconf)
             (cd snappy-$SNAPPY_VSN && \
                 ./configure $CONFFLAGS \
-                --host="${CROSS}"
-                --enable-static \
-                --disable-shared \
                 --with-pic \
                 --prefix=$BASEDIR/snappy &&  \
                 make install)
             rm -f $BASEDIR/snappy/lib/libsnappy.la
         fi
         
-        export TARGET_OS="OS_LINUX_ARM_CROSSCOMPILE"
+ #       export TARGET_OS="OS_LINUX_ARM_CROSSCOMPILE"
         
         # leveldb
         if [ ! -f $BASEDIR/leveldb/lib/libleveldb.a ]; then

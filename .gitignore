@@ -1,3 +1,5 @@
+_build
+rebar.lock
 .eqc-info
 .eunit/
 .qc/
