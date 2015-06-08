@@ -39,7 +39,7 @@ set -eo pipefail
 
 
 SNAPPY_VSN=master
-LEVELDB_VSN=1.18
+LEVELDB_VSN=v1.18
 
 if [ `basename $PWD` != "c_src" ]; then
     pushd c_src > /dev/null 2>&1
