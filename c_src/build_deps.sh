@@ -95,11 +95,10 @@ case "$1" in
             (cd $REBAR_DEPS_DIR/leveldb && git archive --format=tar --prefix=leveldb-$LEVELDB_VSN/ $LEVELDB_VSN) \
                 | tar xf -
             (cd leveldb-$LEVELDB_VSN && \
-                export TARGET_OS="OS_LINUX_ARM_CROSSCOMPILE" \
-                echo "echo \"PLATFORM_CFLAGS+=-fPIC -I$BASEDIR/snappy/include\" >> build_config.mk" >> build_detect_platform && \
-                echo "echo \"PLATFORM_CXXFLAGS+=-fPIC -I$BASEDIR/snappy/include\" >> build_config.mk" >> build_detect_platform && \
-                echo "echo \"PLATFORM_LDFLAGS+=-L $BASEDIR/snappy/lib -lsnappy\" >> build_config.mk" >> build_detect_platform && \
-                make SNAPPY=1 && \
+                echo "echo \"PLATFORM_CFLAGS+=-fPIC -I$BASEDIR/snappy/include\" >> build_config.mk" >> build_detect_platform &&
+                echo "echo \"PLATFORM_CXXFLAGS+=-fPIC -I$BASEDIR/snappy/include\" >> build_config.mk" >> build_detect_platform &&
+                echo "echo \"PLATFORM_LDFLAGS+=-L $BASEDIR/snappy/lib -lsnappy\" >> build_config.mk" >> build_detect_platform &&
+                TARGET_OS="OS_LINUX_ARM_CROSSCOMPILE" make all && \
                 mkdir -p $BASEDIR/leveldb/include/leveldb && \
                 install include/leveldb/*.h $BASEDIR/leveldb/include/leveldb && \
                 mkdir -p $BASEDIR/leveldb/lib && \
