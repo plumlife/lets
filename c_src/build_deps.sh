@@ -24,20 +24,20 @@
 
 set -eo pipefail
 
-# CROSS="arm-plum-linux-gnueabi"
+CROSS="arm-plum-linux-gnueabi"
 
-# export PATH="/root/x-tools/arm-plum-linux-gnueabi/bin:${PATH}"
-# export CC="${CROSS}-gcc"
-# export CXX="${CROSS}-g++"
-# export AR="${CROSS}-ar"
-# export RANLIB="${CROSS}-ranlib"
-# export LD="${CROSS}-ld"
-# export LDD="${CROSS}-ldd"
-# export ELFEDIT="${CROSS}-elfedit"
-# export STRIP="${CROSS}-strip"
+export PATH="/root/x-tools/arm-plum-linux-gnueabi/bin:${PATH}"
+export CC="${CROSS}-gcc"
+export CXX="${CROSS}-g++"
+export AR="${CROSS}-ar"
+export RANLIB="${CROSS}-ranlib"
+export LD="${CROSS}-ld"
+export LDD="${CROSS}-ldd"
+export ELFEDIT="${CROSS}-elfedit"
+export STRIP="${CROSS}-strip"
 
 SNAPPY_VSN=1.0.4
-LEVELDB_VSN=v1.18
+LEVELDB_VSN=ARM32-1.18
 
 if [ `basename $PWD` != "c_src" ]; then
     pushd c_src > /dev/null 2>&1
@@ -60,7 +60,7 @@ case "$1" in
         then
             echo "Already cloned and checked out"
         else
-            cd $REBAR_DEPS_DIR && git clone git://github.com/google/leveldb.git leveldb -b $LEVELDB_VSN --single-branch
+            cd $REBAR_DEPS_DIR && git clone git://github.com/plumlife/leveldb.git leveldb -b $LEVELDB_VSN --single-branch
         fi
         ;;
     update_deps)
@@ -81,13 +81,14 @@ case "$1" in
         if [ ! -f $BASEDIR/snappy/lib/libsnappy.a ]; then
             (cd snappy-$SNAPPY_VSN && \
                 ./configure $CONFFLAGS \
+                --host="${CROSS}"
                 --with-pic \
                 --prefix=$BASEDIR/snappy &&  \
                 make install)
             rm -f $BASEDIR/snappy/lib/libsnappy.la
         fi
         
- #       export TARGET_OS="OS_LINUX_ARM_CROSSCOMPILE"
+        export TARGET_OS="OS_LINUX_ARM_CROSSCOMPILE"
         
         # leveldb
         if [ ! -f $BASEDIR/leveldb/lib/libleveldb.a ]; then
