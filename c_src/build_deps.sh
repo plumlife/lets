@@ -95,14 +95,11 @@ case "$1" in
             (cd $REBAR_DEPS_DIR/leveldb && git archive --format=tar --prefix=leveldb-$LEVELDB_VSN/ $LEVELDB_VSN) \
                 | tar xf -
             (cd leveldb-$LEVELDB_VSN && \
-                echo "echo \"PLATFORM_CFLAGS+=-fPIC -I$BASEDIR/snappy/include\" >> build_config.mk" >> build_detect_platform &&
-                echo "echo \"PLATFORM_CXXFLAGS+=-fPIC -I$BASEDIR/snappy/include\" >> build_config.mk" >> build_detect_platform &&
-                echo "echo \"PLATFORM_LDFLAGS+=-L $BASEDIR/snappy/lib -lsnappy\" >> build_config.mk" >> build_detect_platform &&
-                make SNAPPY=1 && \
-                mkdir -p $BASEDIR/leveldb/include/leveldb && \
-                install include/leveldb/*.h $BASEDIR/leveldb/include/leveldb && \
-                mkdir -p $BASEDIR/leveldb/lib && \
-                install libleveldb.a $BASEDIR/leveldb/lib)
+                export CFLAGS="$CFLAGS -I $BASEDIR/snappy/include" \
+                export CXXFLAGS="$CXXFLAGS -I $BASEDIR/snappy/include" \
+                export LDFLAGS="$LDFLAGS -L$BASEDIR/snappy/lib -lsnappy" \
+                export LD_LIBRARY_PATH="$BASEDIR/snappy/lib:$LD_LIBRARY_PATH" \
+                make all)
         fi
         ;;
 esac
