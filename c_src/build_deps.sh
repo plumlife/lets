@@ -81,7 +81,7 @@ case "$1" in
         if [ ! -f $BASEDIR/snappy/lib/libsnappy.a ]; then
             (cd snappy-$SNAPPY_VSN && \
                 ./configure $CONFFLAGS \
-                --host="${CROSS}"
+                --host="${CROSS}" \
                 --with-pic \
                 --prefix=$BASEDIR/snappy &&  \
                 make install)
