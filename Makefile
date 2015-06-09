@@ -24,7 +24,7 @@ distclean: clean
 	rm -rf $(lets_erl_files) $(lets_cxx_files) $(rets_erl_files) $(rets_cxx_files)
 
 compile: $(lets_erl_files) $(lets_cxx_files) $(rets_erl_files) $(rets_cxx_files)
-	$(REBAR) compile -vv
+	$(REBAR) compile
 
 xref:
 	$(REBAR) xref skip_deps=true
