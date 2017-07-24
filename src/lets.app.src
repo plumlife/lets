@@ -25,7 +25,7 @@
 {application, lets,
  [
   {description, "LevelDB ETS"},
-  {vsn, 2.0.1},
+  {vsn, "2.0.1"},
   {registered, []},
   {applications, [kernel, stdlib, sasl]},
   {modules, [lets, lets_impl_drv, lets_impl_nif]}
