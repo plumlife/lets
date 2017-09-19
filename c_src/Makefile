@@ -31,11 +31,9 @@ else ifeq ($(UNAME_SYS), Linux)
 endif
 
 CFLAGS += -fPIC -I $(ERTS_INCLUDE_DIR) -I $(ERL_INTERFACE_INCLUDE_DIR) \
- -I ../_build/default/lib/leveldb/include -I ../_build/default/lib/rocksdb/include \
- -I ../_build/default/lib/hyperleveldb/include -DROCKSDB
+ -I $(REBAR_DEPS_DIR)/leveldb/include -I $(REBAR_DEPS_DIR)/rocksdb/include -I $(REBAR_DEPS_DIR)/hyperleveldb/include
 CXXFLAGS += -fPIC -I $(ERTS_INCLUDE_DIR) -I $(ERL_INTERFACE_INCLUDE_DIR) \
- -I ../_build/default/lib/leveldb/include -I ../_build/default/lib/rocksdb/include \
- -I ../_build/default/lib/hyperleveldb/include -DROCKSDB
+ -I $(REBAR_DEPS_DIR)/leveldb/include -I $(REBAR_DEPS_DIR)/rocksdb/include -I $(REBAR_DEPS_DIR)/hyperleveldb/include
 
 LDLIBS += -L $(ERL_INTERFACE_LIB_DIR) -lerl_interface -lei
 LDFLAGS += -shared
@@ -57,6 +55,7 @@ OBJECTS = $(addsuffix .o, $(basename $(SOURCES)))
 COMPILE_C = $(c_verbose) $(CC) $(CFLAGS) $(CPPFLAGS) -c
 COMPILE_CPP = $(cpp_verbose) $(CXX) $(CXXFLAGS) $(CPPFLAGS) -c
 
+# This is the one we use - others could be built as well.
 $(BASEDIR)/priv/lib/lets_impl_drv.so: lets_impl_drv.o
 	@mkdir -p $(BASEDIR)/priv/lib
 	$(link_verbose) $(CC) lets_impl_drv.o $(LDFLAGS) $(LDLIBS) -o $(BASEDIR)/priv/lib/lets_impl_drv.so
